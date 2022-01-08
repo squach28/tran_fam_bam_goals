@@ -25,8 +25,6 @@ class AuthViewModel: ObservableObject {
             
             DispatchQueue.main.async {
                 self?.signedIn = true
-                print("signed in")
-                print(self?.signedIn)
             }
         }
     }

@@ -11,32 +11,14 @@ struct ContentView: View {
     
     @ObservedObject var model = GoalViewModel()
     @State private var showingPopover = false
-    @StateObject var authViewModel = AuthViewModel()
+    @ObservedObject var authViewModel = AuthViewModel()
     
     var body: some View {
-        
-        NavigationView {
-            if authViewModel.signedIn {
-                VStack {
-                    Text("You are signed in")
-                    Button("Sign Out", action: {
-                        authViewModel.signOut()
-                    })
-                }
-
-            } else {
-                VStack(alignment: .leading) {
-                    SignUpView(authViewModel: authViewModel)
-                }
-            }
+        if authViewModel.isSignedIn || authViewModel.signedIn {
+            HomeView(authViewModel: authViewModel)
+        } else {
+            SplashScreenView(authViewModel: authViewModel)
         }
-        .onAppear {
-            authViewModel.signedIn = authViewModel.isSignedIn
-        }
-        .navigationBarTitle("")
-        .navigationBarHidden(true)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -46,6 +28,6 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-.previewInterfaceOrientation(.portrait)
+            .previewInterfaceOrientation(.portrait)
     }
 }

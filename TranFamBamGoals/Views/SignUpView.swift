@@ -14,6 +14,7 @@ struct SignUpView: View {
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @ObservedObject var authViewModel: AuthViewModel
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     
     var body: some View {
@@ -86,13 +87,20 @@ struct SignUpView: View {
                 .overlay(Divider(), alignment: .bottom)
                 
                 
-                Button("Sign Up", action: {
+                Button(action: {
                     guard !email.isEmpty, !password.isEmpty else {
                         return
                     }
                     authViewModel.signUp(email: email,password: password)
+                    print(authViewModel.isSignedIn)
                     
-                })
+                    self.presentationMode.wrappedValue.dismiss()
+                    
+                }) {
+                    Text("Sign Up")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(.green)
