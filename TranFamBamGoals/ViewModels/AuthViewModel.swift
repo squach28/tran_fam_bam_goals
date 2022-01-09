@@ -16,11 +16,18 @@ class AuthViewModel: ObservableObject {
         return auth.currentUser != nil
     }
     
-    func signUp(email: String, password: String) {
+    func signUp(email: String, password: String, fullName: String) {
         auth.createUser(withEmail: email, password: password) {
             [weak self] result, error in
             guard result != nil, error == nil else {
                 fatalError("Error signing up! \(error?.localizedDescription)")
+            }
+            
+            let initUserDisplayNameRequest = self?.auth.currentUser?.createProfileChangeRequest()
+            
+            guard initUserDisplayNameRequest != nil else {
+                print("Change request wasn't able to be created")
+                fatalError("Change request wasn't able to be created")
             }
             
             DispatchQueue.main.async {

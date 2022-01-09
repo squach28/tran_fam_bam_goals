@@ -10,9 +10,13 @@ import SwiftUI
 struct SignUpView: View {
     
     @State private var fullName: String = ""
+    @State private var isValidFullName: Bool = false
     @State private var email: String = ""
+    @State private var isValidEmail: Bool = false
     @State private var password: String = ""
+    @State private var isValidPassword: Bool = false
     @State private var confirmPassword: String = ""
+    @State private var isMatchingPasswords: Bool = false
     @ObservedObject var authViewModel: AuthViewModel
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
@@ -38,6 +42,11 @@ struct SignUpView: View {
                         .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color(red: 0.179, green: 0.189, blue: 0.21))
+                        .onChange(of: fullName) {
+                            newValue in
+                            isValidFullName = !fullName.isEmpty
+                        }
+                    validationIcon(isValid: isValidFullName)
                 }
                 .overlay(RoundedRectangle(cornerRadius: 0).stroke(.gray, lineWidth: 0))
                 .background(Color(red: 0.179, green: 0.189, blue: 0.21))
@@ -53,6 +62,11 @@ struct SignUpView: View {
                         .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color(red: 0.179, green: 0.189, blue: 0.21))
+                        .onChange(of: email) {
+                            newValue in
+                            isValidEmail = validateEmail(email)
+                        }
+                    validationIcon(isValid: isValidEmail)
                 }
                 .overlay(RoundedRectangle(cornerRadius: 0).stroke(.gray, lineWidth: 0))
                 .background(Color(red: 0.179, green: 0.189, blue: 0.21))
@@ -67,6 +81,11 @@ struct SignUpView: View {
                         .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color(red: 0.179, green: 0.189, blue: 0.21))
+                        .onChange(of: password) {
+                            newValue in
+                            isValidPassword = password.count >= 6
+                        }
+                    validationIcon(isValid: isValidPassword)
                 }
                 .overlay(RoundedRectangle(cornerRadius: 0).stroke(.gray, lineWidth: 0))
                 .background(Color(red: 0.179, green: 0.189, blue: 0.21))
@@ -81,6 +100,12 @@ struct SignUpView: View {
                         .textInputAutocapitalization(.never)
                         .padding()
                         .background(Color(red: 0.179, green: 0.189, blue: 0.21))
+                        .onChange(of: confirmPassword) {
+                            newValue in
+                            isMatchingPasswords = password == confirmPassword
+                        }
+                    validationIcon(isValid: isMatchingPasswords)
+                    
                 }
                 .overlay(RoundedRectangle(cornerRadius: 0).stroke(.gray, lineWidth: 0))
                 .background(Color(red: 0.179, green: 0.189, blue: 0.21))
@@ -88,10 +113,18 @@ struct SignUpView: View {
                 
                 
                 Button(action: {
-                    guard !email.isEmpty, !password.isEmpty else {
+                    guard !fullName.isEmpty, !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
                         return
                     }
-                    authViewModel.signUp(email: email,password: password)
+                    
+                    guard password.count >= 6 else {
+                        return
+                    }
+                    
+                    guard password == confirmPassword else {
+                        return
+                    }
+                    authViewModel.signUp(email: email,password: password, fullName: fullName)
                     print(authViewModel.isSignedIn)
                     
                     self.presentationMode.wrappedValue.dismiss()
@@ -101,14 +134,14 @@ struct SignUpView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                 }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.green)
-                    .cornerRadius(10)
-                    .foregroundColor(.white)
-                    .shadow(radius: 3)
-                    .padding(.top, 40)
-                    .shadow(radius: 5)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.green)
+                .cornerRadius(10)
+                .foregroundColor(.white)
+                .shadow(radius: 3)
+                .padding(.top, 40)
+                .shadow(radius: 5)
                 
                 
             }
@@ -118,6 +151,35 @@ struct SignUpView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .preferredColorScheme(.dark)
+    }
+    
+    func validateEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegex)
+        return emailPred.evaluate(with: email)
+    }
+    
+    func validationIcon(isValid: Bool) -> some View {
+        if isValid {
+            return AnyView(                Image(systemName: "checkmark.circle.fill")
+                                            .resizable()
+                                            .renderingMode(.original)
+                                            .frame(maxWidth: 25, maxHeight: 25)
+                                           
+                                            .padding()
+            )
+        } else {
+            return AnyView(
+                Image(systemName: "x.circle.fill")
+                    .renderingMode(.original)
+                    .resizable()
+                    .frame(maxWidth: 25, maxHeight: 25)
+                    .foregroundColor(.red)
+                    .padding()
+            )
+            
+        }
+        
     }
 }
 
