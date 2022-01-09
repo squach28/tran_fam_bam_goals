@@ -111,17 +111,28 @@ struct SignUpView: View {
                 .background(Color(red: 0.179, green: 0.189, blue: 0.21))
                 .overlay(Divider(), alignment: .bottom)
                 
+                Label {
+                    Text("Password must be 6 characters or longer")
+                        .font(.caption)
+                } icon: {
+                    validationIcon(isValid: isValidPassword)
+                }
+                
                 
                 Button(action: {
                     guard !fullName.isEmpty, !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
                         return
                     }
                     
-                    guard password.count >= 6 else {
+                    guard isValidEmail else {
                         return
                     }
                     
-                    guard password == confirmPassword else {
+                    guard isValidPassword else {
+                        return
+                    }
+                    
+                    guard isMatchingPasswords else {
                         return
                     }
                     authViewModel.signUp(email: email,password: password, fullName: fullName)
@@ -142,6 +153,7 @@ struct SignUpView: View {
                 .shadow(radius: 3)
                 .padding(.top, 40)
                 .shadow(radius: 5)
+                
                 
                 
             }
@@ -176,6 +188,7 @@ struct SignUpView: View {
                     .frame(maxWidth: 25, maxHeight: 25)
                     .foregroundColor(.red)
                     .padding()
+                
             )
             
         }
