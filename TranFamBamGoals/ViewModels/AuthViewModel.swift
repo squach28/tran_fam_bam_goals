@@ -23,11 +23,13 @@ class AuthViewModel: ObservableObject {
                 fatalError("Error signing up! \(error?.localizedDescription)")
             }
             
-            let initUserDisplayNameRequest = self?.auth.currentUser?.createProfileChangeRequest()
-            
+            let initUserDisplayNameRequest = result?.user.createProfileChangeRequest()
             guard initUserDisplayNameRequest != nil else {
-                print("Change request wasn't able to be created")
                 fatalError("Change request wasn't able to be created")
+            }
+            initUserDisplayNameRequest?.displayName = fullName
+            initUserDisplayNameRequest?.commitChanges { error in
+                print("Commit changes went wrong!")
             }
             
             DispatchQueue.main.async {
@@ -53,6 +55,22 @@ class AuthViewModel: ObservableObject {
         try? auth.signOut()
         self.signedIn = false
         print("logged out!")
+    }
+    
+    func fetchProfileInfo() {
+        let user = Auth.auth().currentUser
+        if let user = user {
+            let uid = user.uid
+            let email = user.email
+        }
+    }
+    
+    func getUserDisplayName() -> String {
+        let user = Auth.auth().currentUser
+        if let user = user {
+            return user.displayName!
+        }
+        return ""
     }
     
 }
