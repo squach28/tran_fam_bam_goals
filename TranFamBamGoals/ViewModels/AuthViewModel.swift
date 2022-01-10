@@ -11,6 +11,11 @@ import FirebaseAuth
 class AuthViewModel: ObservableObject {
     let auth = Auth.auth()
     @Published var signedIn = false
+    @Published var userInfo: [String: String] = [:]
+    
+    init() {
+        fetchProfileInfo()
+    }
     
     var isSignedIn: Bool {
         return auth.currentUser != nil
@@ -29,7 +34,7 @@ class AuthViewModel: ObservableObject {
             }
             initUserDisplayNameRequest?.displayName = fullName
             initUserDisplayNameRequest?.commitChanges { error in
-                print("Commit changes went wrong!")
+                
             }
             
             DispatchQueue.main.async {
@@ -59,18 +64,16 @@ class AuthViewModel: ObservableObject {
     
     func fetchProfileInfo() {
         let user = Auth.auth().currentUser
+        var userInfo: [String:String] = [:]
         if let user = user {
-            let uid = user.uid
-            let email = user.email
+            userInfo["uid"] = user.uid
+            userInfo["email"] = user.email
+            userInfo["name"] = user.displayName
+            
         }
+        self.userInfo = userInfo
+        
+       
     }
-    
-    func getUserDisplayName() -> String {
-        let user = Auth.auth().currentUser
-        if let user = user {
-            return user.displayName!
-        }
-        return ""
-    }
-    
+        
 }
